@@ -84,7 +84,6 @@ class TicTac:
         self.label_end_win.place(x=220, y=40)
         self.label_end_win.configure(background='#ffffff')
 
-
     def player1_count(self):
         """
         Функция увеличивает количество побед игрока 1
@@ -166,10 +165,6 @@ class TicTac:
         """
         self.root.mainloop()
 
-    # canvas_O = tkinter.Canvas(window, height=70, width=70, highlightthickness=0)
-    # image_O = image_O.resize((70, 70), Image.LANCZOS)
-    # photo_O = ImageTk.PhotoImage(image_O)
-    # image_O = canvas_O.create_image(0, 0, anchor='nw', image=photo_O)
     def hod(self, elem, pos_xy):
         """
         Функция реализующая ход на игровом поле
@@ -185,7 +180,6 @@ class TicTac:
         else:
             self.canva_add_o(self.element[ind])
         self.print_canva(self.element[ind], pos_x, pos_y)
-
 
     def motion(self, event):
         """
@@ -242,9 +236,6 @@ class TicTac:
         Функция определяющая победу
         :return:
         """
-        if len(self.moves_made) == 10:
-            self.win_xod = [0, 0, 1]
-            return True
         for el_win in self.win:
             if ([el_win[0], elem] in self.moves_made) and ([el_win[1], elem] in self.moves_made) and ([el_win[2], elem] in self.moves_made):
                 if elem == 'X':
@@ -252,6 +243,9 @@ class TicTac:
                 if elem == 'O':
                     self.win_xod = [0, 1, 0]
                 return True
+        if len(self.moves_made) == 10:
+            self.win_xod = [0, 0, 1]
+            return True
         return False
 
     def end_game(self, elem):
@@ -267,35 +261,3 @@ class TicTac:
             self.player2_count()
         if self.win_xod[2]:
             self.draw_count()
-
-
-
-    # def create_line(self):
-    #     canvas_line = tkinter.Canvas(self.root, height=300, width=300, highlightthickness=0)
-    #     #canvas_line.create_line(0,0,300,300)
-    #     image = tk.PhotoImage(file='img/1.png')
-    #     canvas_line.create_image(0,0,image=image, anchor=tk.NW)
-    #     canvas_line.place(x=0, y=100)
-        #self.element[0].create_line(0,0,70,70)
-
-
-
-game = TicTac()
-
-
-
-# game.hod('O',1)
-# game.hod('X',5)
-# canva_x1 = game.canva_create()
-# game.canva_add_x(canva_x1)
-# game.print_canva(canva_x1,15, 115)
-
-# canva_x2 = game.canva_create()
-# game.canva_add_o(canva_x2)
-# game.print_canva(canva_x2,115, 115)
-
-
-game.mainloop()
-
-# canvas_O.place(x=100, y=115)
-# window.mainloop()
