@@ -1,6 +1,7 @@
 import tkinter as tk  # Для создания интерфейса пользователя
 import tkinter.messagebox
 from PIL import Image, ImageTk
+import random
 import dqn
 
 
@@ -31,7 +32,7 @@ class TicTac:
         self.win_xod = [0, 0, 0]  # Победа Х,О,Н
         self.game_field = [0, 0, 0, 0, 0, 0, 0, 0, 0]  # 0- Пусто, 1-Х, -1-О
         # Информация из интрефейса управлния (пока отсутсвуют)
-        self.init_type = 1  # 1 -> человек - человек, 2 -> человек - компьютер, 3 -> рандом - компьютер
+        self.init_type = 3  # 1 -> человек - человек, 2 -> человек - компьютер, 3 -> рандом - компьютер, 4 -> рандом - ч
         self.init_xo = True  # 1 - X, 0 - 0 кто первый
 
         self.flag_xo = self.init_xo  # True - X, False - 0 кто первый
@@ -49,7 +50,8 @@ class TicTac:
         self.photo_P = ImageTk.PhotoImage(self.image_P)
         self.image_P = self.canvas_P.create_image(0, 0, anchor='nw', image=self.photo_P)  # Создаем поле для игры
         self.canvas_P.place(x=0, y=100)
-        self.canvas_P.bind('<Button-1>', self.motion)
+        if self.init_type != 3:
+            self.canvas_P.bind('<Button-1>', self.motion)
         self.image_X = self.image_X.resize((70, 70), Image.LANCZOS)
         self.photo_X = ImageTk.PhotoImage(self.image_X)
         self.image_O = self.image_O.resize((70, 70), Image.LANCZOS)
@@ -84,6 +86,9 @@ class TicTac:
         self.mainmenu = tkinter.Menu(self.root)
         self.root.config(menu=self.mainmenu)
         self.mainmenu.add_command(label="Новая игра", command=self.new_game)
+
+        if self.init_type == 3:
+            self.mainmenu.add_command(label="Обучение", command=self.new_game)
 
         self.label_end = tk.Label(self.root, text='')
         self.label_end.place(x=140, y=40)
@@ -215,6 +220,17 @@ class TicTac:
                 if 200 < x < 300: pos = 9
             if pos:
                 self.fun_moves_made(pos)
+            if self.init_type == 4 and not any(self.win_xod):
+                pos = self.random_hod()
+                self.fun_moves_made(pos)
+
+    def random_hod(self):
+        while True:
+            pos = random.randint(1, 9)
+            if not self.game_field[pos-1]:
+                return pos
+
+
 
     def fun_moves_made(self, pos):
         """
@@ -253,6 +269,7 @@ class TicTac:
         # if self.win_xod[2]:
         #     self.end_game('=')
             return True
+
     #def search_win_game(self, elem)
     def search_end_game(self):
         """
