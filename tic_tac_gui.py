@@ -1,6 +1,7 @@
 import tkinter as tk  # Для создания интерфейса пользователя
 import tkinter.messagebox
 from PIL import Image, ImageTk
+import dqn
 
 
 class TicTac:
@@ -261,3 +262,7 @@ class TicTac:
             self.player2_count()
         if self.win_xod[2]:
             self.draw_count()
+
+
+game = TicTac()
+game.mainloop()
