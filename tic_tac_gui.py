@@ -3,6 +3,7 @@ import tkinter.messagebox
 from PIL import Image, ImageTk
 import random
 import dqn
+import numpy as np
 
 
 class TicTac:
@@ -88,7 +89,7 @@ class TicTac:
         self.mainmenu.add_command(label="Новая игра", command=self.new_game)
 
         if self.init_type == 3:
-            self.mainmenu.add_command(label="Обучение", command=self.new_game)
+            self.mainmenu.add_command(label="Обучение", command=self.education)
 
         self.label_end = tk.Label(self.root, text='')
         self.label_end.place(x=140, y=40)
@@ -139,6 +140,59 @@ class TicTac:
         self.label_end_win['text'] = ''
         self.win_xod = [0, 0, 0]
         self.game_field = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+    def _reward(self, actions):
+        if self.game_field[actions-1]:
+            return True, -5
+        self.fun_moves_made(actions)
+        if any(self.win_xod):
+            if self.win_xod[0] or self.win_xod[2]:
+                return True, -5
+            if self.win_xod[1]:
+                return True, 10
+
+        return False, 1
+
+    def _random(self):
+        pos = self.random_hod()
+        self.fun_moves_made(pos)
+        return self.game_field
+
+    def education(self):
+
+        for e in range(agent.n_episodes):
+            self.new_game()
+            # Первый ход делает рандом
+            state = self._random().copy()
+            done = False
+            time = 0
+            while not done:
+                if np.random.rand() <= agent.epsilon:
+                    actions = self.random_hod()
+                    done, reward = self._reward(actions)
+                else:
+                    actions = agent.act(state)
+                    done, reward = self._reward(actions)
+
+                next_state = self._random().copy()
+                if self.win_xod[0] or self.win_xod[2]:
+                    done = True
+                    reward = -5
+                print(state, actions, reward, next_state, done)
+                #print(len(agent.memory))
+                agent.remember(state, actions, reward, next_state, done)
+                state = next_state
+                if done:
+                    print("episode: {}/{}, score: {}, e: {:.2}".format(e, agent.n_episodes - 1, time, agent.epsilon))
+                time += 1
+            #  Если длина списка, представляющего память агента, превысила размер пакета, вызывается метод train()
+            if len(agent.memory) > agent.batch_size:
+                agent.train(agent.batch_size)
+                '''
+                Через каждые 50 эпизодов вызывается метод save() агента, чтобы сохранить параметры модели нейронной сети
+                '''
+            if e % 50 == 0:
+                agent.save(agent.output_dir + "weights_" + '{:04d}'.format(e) + ".hdf5")
 
     def canva_create(self):
         """
@@ -268,7 +322,7 @@ class TicTac:
             self.end_game()
         # if self.win_xod[2]:
         #     self.end_game('=')
-            return True
+            #return True
 
     #def search_win_game(self, elem)
     def search_end_game(self):
@@ -315,4 +369,6 @@ class TicTac:
 
 
 game = TicTac()
+if game.init_type == 3:
+    agent = dqn.DQNAgent()
 game.mainloop()
