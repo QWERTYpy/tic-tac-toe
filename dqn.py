@@ -71,7 +71,7 @@ class DQNAgent:
     def load(self, name):
         self.model.load_weights(name)
 
-
+"""
 agent = DQNAgent(state_size, action_size)
 
 # Код в листинге реализует взаимодействие нашего агента с окружением из библиотеки OpenAI Gym
@@ -124,3 +124,4 @@ for e in range(n_episodes):
         '''
     if e % 50 == 0:
         agent.save(output_dir + "weights_" + '{:04d}'.format(e) + ".hdf5")
+"""

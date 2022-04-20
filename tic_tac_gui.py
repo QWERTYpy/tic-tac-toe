@@ -13,7 +13,7 @@ class TicTac:
         self.image_X = Image.open("img/X.jpg")
         self.image_O = Image.open("img/O.jpg")
 
-        self.moves_made = [1]
+
         self.position = [[15, 115], [115, 115], [215, 115],
                     [15, 215], [115, 215], [215, 215],
                     [15, 315], [115, 315], [215, 315]]
@@ -28,7 +28,15 @@ class TicTac:
                     [2, 5, 8],
                     [3, 6, 9]]
 
-        self.win_xod = [0, 0, 0]
+        self.win_xod = [0, 0, 0]  # Победа Х,О,Н
+        self.game_field = [0, 0, 0, 0, 0, 0, 0, 0, 0]  # 0- Пусто, 1-Х, -1-О
+        # Информация из интрефейса управлния (пока отсутсвуют)
+        self.init_type = 1  # 1 -> человек - человек, 2 -> человек - компьютер, 3 -> рандом - компьютер
+        self.init_xo = True  # 1 - X, 0 - 0 кто первый
+
+        self.flag_xo = self.init_xo  # True - X, False - 0 кто первый
+
+        #self.moves_made = [self.init_xo]  # Создаем список со сделанными ходами. Первый элемент - выбор Х или О
 
         self.root = tk.Tk()
         self.root.title("Крестики-Нолики")
@@ -120,10 +128,12 @@ class TicTac:
         for _ in self.element:
             _.destroy()
         self.element = []
-        self.moves_made = [1]
+        #self.moves_made = [1]
+        self.flag_xo = self.init_xo
         self.label_end['text'] = ''
         self.label_end_win['text'] = ''
         self.win_xod = [0, 0, 0]
+        self.game_field = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     def canva_create(self):
         """
@@ -173,14 +183,14 @@ class TicTac:
         :param pos_xy:  номер ячейки 1,2,3,4,5,6,7,8,9
         :return:
         """
-        pos_x, pos_y = self.position[pos_xy - 1]
-        self.element.append(self.canva_create())
-        ind = len(self.element) - 1
+        pos_x, pos_y = self.position[pos_xy - 1]  # Получаем координаты для размещения на канве нового эелемента
+        self.element.append(self.canva_create())  # Создаем указатель на канву
+        ind = len(self.element) - 1  # Получаем адрес указателя
         if elem == 'X':
             self.canva_add_x(self.element[ind])
         else:
             self.canva_add_o(self.element[ind])
-        self.print_canva(self.element[ind], pos_x, pos_y)
+        self.print_canva(self.element[ind], pos_x, pos_y)  # Размещаем элемент на канве
 
     def motion(self, event):
         """
@@ -209,50 +219,73 @@ class TicTac:
     def fun_moves_made(self, pos):
         """
         Функция реализующая сам ход
-        :param pos:
+        :param pos: 1,2,3,4,5,6,7,8,9
         :return:
         """
         # global moves_made
 
-        moves_made = [x for x, _ in self.moves_made[1:]]
-        if pos not in moves_made:
-            if self.moves_made[0] == 1:
+        # moves_made = [x for x, _ in self.moves_made[1:]]
+        #if pos not in moves_made:
+        if not self.game_field[pos-1]:
+            #if self.moves_made[0] == 1:
+            if self.flag_xo:
                 self.hod('X', pos)
-                self.moves_made.append([pos, 'X'])
-                self.moves_made[0] = 0
+                #self.moves_made.append([pos, 'X'])
+                self.game_field[pos-1] = 1
+                #self.moves_made[0] = 0
+                self.flag_xo = False
             else:
                 self.hod('O', pos)
-                self.moves_made.append([pos, 'O'])
-                self.moves_made[0] = 1
+                #self.moves_made.append([pos, 'O'])
+                self.game_field[pos-1] = -1
+                #self.moves_made[0] = 1
+                self.flag_xo = True
             self.root.update()
-        if self.search_win_game('O') and not self.win_xod[2]:
-            self.end_game('O')
-        if self.search_win_game('X') and not self.win_xod[2]:
-            self.end_game('X')
-        if self.win_xod[2]:
-            self.end_game('=')
-
-    def search_win_game(self, elem):
+            # Проверка после совершенного хода на победу или ничью
+        # if self.search_win_game('O') and not self.win_xod[2]:
+        #     self.end_game('O')
+        #     return True
+        # if self.search_win_game('X') and not self.win_xod[2]:
+        #     self.end_game('X')
+        #     return True
+        if self.search_end_game():
+            self.end_game()
+        # if self.win_xod[2]:
+        #     self.end_game('=')
+            return True
+    #def search_win_game(self, elem)
+    def search_end_game(self):
         """
         Функция определяющая победу
         :return:
         """
+        _win = 0
         for el_win in self.win:
-            if ([el_win[0], elem] in self.moves_made) and ([el_win[1], elem] in self.moves_made) and ([el_win[2], elem] in self.moves_made):
-                if elem == 'X':
+            #if ([el_win[0], elem] in self.moves_made) and ([el_win[1], elem] in self.moves_made) and ([el_win[2], elem] in self.moves_made):
+            for _ in el_win:
+                _win += self.game_field[_-1]
+            if _win**2 == 9:
+                #if elem == 'X':
+                if _win > 0:
                     self.win_xod = [1, 0, 0]
-                if elem == 'O':
+                #if elem == 'O':
+                if _win < 0:
                     self.win_xod = [0, 1, 0]
                 return True
-        if len(self.moves_made) == 10:
+            _win = 0
+        #if len(self.moves_made) == 10:
+        if all(self.game_field):
             self.win_xod = [0, 0, 1]
             return True
         return False
 
-    def end_game(self, elem):
+    def end_game(self):
         if any(self.win_xod[:2]):
             self.label_end['text'] = 'ПОБЕДИЛ :'
-            self.label_end_win['text'] = elem
+            if self.win_xod[0]:
+                self.label_end_win['text'] = 'X'
+            if self.win_xod[1]:
+                self.label_end_win['text'] = 'O'
         if self.win_xod[2]:
             self.label_end['text'] = 'НИЧЬЯ'
 
