@@ -99,6 +99,7 @@ class TicTac:
         self.label_end_win.place(x=220, y=40)
         self.label_end_win.configure(background='#ffffff')
 
+
     def player1_count(self):
         """
         Функция увеличивает количество побед игрока 1
@@ -143,15 +144,15 @@ class TicTac:
 
     def _reward(self, actions):
         if self.game_field[actions-1]:
-            return True, -5
+            return True, True, -1
         self.fun_moves_made(actions)
         if any(self.win_xod):
             if self.win_xod[0] or self.win_xod[2]:
-                return True, -5
+                return False, True, -1
             if self.win_xod[1]:
-                return True, 10
+                return True, True, 1
 
-        return False, 1
+        return False, False, 0.5
 
     def _random(self):
         pos = self.random_hod()
@@ -161,30 +162,43 @@ class TicTac:
     def education(self):
 
         for e in range(agent.n_episodes):
+            print('1')
             self.new_game()
             # Первый ход делает рандом
             state = self._random().copy()
+            state = np.reshape(state, [1, agent.state_size])
             done = False
             time = 0
             while not done:
+                #print('r', state)
                 if np.random.rand() <= agent.epsilon:
                     actions = self.random_hod()
-                    done, reward = self._reward(actions)
+                    dubl, done, reward = self._reward(actions)
+                    # print(state)
+                    # print(agent.model.predict(state))
+                    # print(agent.act(state))
+                    # print('q')
                 else:
                     actions = agent.act(state)
-                    done, reward = self._reward(actions)
-
-                next_state = self._random().copy()
+                    dubl, done, reward = self._reward(actions)
+                #print(actions)
+                if not dubl:
+                    next_state = self._random().copy()
+                    next_state = np.reshape(next_state, [1, agent.state_size])
+                else:
+                    next_state = state
                 if self.win_xod[0] or self.win_xod[2]:
                     done = True
-                    reward = -5
-                print(state, actions, reward, next_state, done)
+                    reward = -0.5
+                #print(state, actions, reward, next_state, done)
                 #print(len(agent.memory))
                 agent.remember(state, actions, reward, next_state, done)
+                #print(agent.memory)
                 state = next_state
+                time += 1
                 if done:
                     print("episode: {}/{}, score: {}, e: {:.2}".format(e, agent.n_episodes - 1, time, agent.epsilon))
-                time += 1
+                #time += 1
             #  Если длина списка, представляющего память агента, превысила размер пакета, вызывается метод train()
             if len(agent.memory) > agent.batch_size:
                 agent.train(agent.batch_size)
@@ -277,6 +291,14 @@ class TicTac:
             if self.init_type == 4 and not any(self.win_xod):
                 pos = self.random_hod()
                 self.fun_moves_made(pos)
+            if self.init_type == 2 and not any(self.win_xod):
+                state = self.game_field.copy()
+                state = np.reshape(state, [1, agent.state_size])
+                actions = agent.act(state)
+                print(actions)
+                self.fun_moves_made(actions)
+
+
 
     def random_hod(self):
         while True:
@@ -369,6 +391,10 @@ class TicTac:
 
 
 game = TicTac()
-if game.init_type == 3:
+if game.init_type == 3 or game.init_type == 2:
     agent = dqn.DQNAgent()
+
+if game.init_type == 2:
+    agent = dqn.DQNAgent()
+    agent.load(agent.output_dir + "weights_0450.hdf5")
 game.mainloop()

@@ -25,8 +25,8 @@ class DQNAgent:
         self.output_dir = 'model_output/'
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
-        self.n_episodes = 100
-        self.batch_size = 32
+        self.n_episodes = 500
+        self.batch_size =64
 
         self.state_size = 9
         self.action_size = 9
@@ -41,7 +41,8 @@ class DQNAgent:
     def _build_model(self):  # +
         model = Sequential()
         model.add(Dense(32, activation='relu', input_dim=self.state_size))
-        model.add(Dense(32, activation='relu'))
+        model.add(Dense(128, activation='relu'))
+        model.add(Dense(64, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
         return model
@@ -64,11 +65,13 @@ class DQNAgent:
         for state, action, reward, next_state, done in minibatch:
             target = reward  # если достигнут конец
             if not done:
-                print(next_state)
-                #target = (reward + self.gamma * np.amax(self.model.predict(next_state)[0]))
+            #print(next_state)
+            #target = (reward + self.gamma * np.amax(self.model.predict(next_state)[0]))
+            #print(reward,'=',target)
                 target_f = self.model.predict(state)
-                target_f[0][action] = target
+                target_f[0][action-1] = target
                 self.model.fit(state, target_f, epochs=1, verbose=0)
+            #self.model.fit(state, target, epochs=1, verbose=0)
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
