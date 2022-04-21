@@ -144,15 +144,18 @@ class TicTac:
 
     def _reward(self, actions):
         if self.game_field[actions-1]:
-            return True, True, -1
+            self.osh += 1
+            return True, -1000
         self.fun_moves_made(actions)
         if any(self.win_xod):
-            if self.win_xod[0] or self.win_xod[2]:
-                return False, True, -1
+            if self.win_xod[0]:
+                return True, -1
             if self.win_xod[1]:
-                return True, True, 1
+                return True, 1
+            if self.win_xod[2]:
+                return True, 1
 
-        return False, False, 0.5
+        return False, 0.5
 
     def _random(self):
         pos = self.random_hod()
@@ -160,9 +163,9 @@ class TicTac:
         return self.game_field
 
     def education(self):
-
+        self.osh=0
         for e in range(agent.n_episodes):
-            print('1')
+            print(self.osh)
             self.new_game()
             # Первый ход делает рандом
             state = self._random().copy()
@@ -173,23 +176,27 @@ class TicTac:
                 #print('r', state)
                 if np.random.rand() <= agent.epsilon:
                     actions = self.random_hod()
-                    dubl, done, reward = self._reward(actions)
+                    done, reward = self._reward(actions)
                     # print(state)
                     # print(agent.model.predict(state))
                     # print(agent.act(state))
                     # print('q')
                 else:
                     actions = agent.act(state)
-                    dubl, done, reward = self._reward(actions)
+                    done, reward = self._reward(actions)
                 #print(actions)
-                if not dubl:
+                if not done:
                     next_state = self._random().copy()
                     next_state = np.reshape(next_state, [1, agent.state_size])
+                    if self.win_xod[0]:
+                        done = True
+                        reward = -100
+                    if self.win_xod[2]:
+                        done = True
+                        reward = 1
                 else:
                     next_state = state
-                if self.win_xod[0] or self.win_xod[2]:
-                    done = True
-                    reward = -0.5
+
                 #print(state, actions, reward, next_state, done)
                 #print(len(agent.memory))
                 agent.remember(state, actions, reward, next_state, done)
