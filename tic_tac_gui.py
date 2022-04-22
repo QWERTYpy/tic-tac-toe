@@ -6,7 +6,6 @@ import dqn
 import numpy as np
 
 
-
 class TicTac:
     def __init__(self):
         """
