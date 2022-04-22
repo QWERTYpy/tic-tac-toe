@@ -37,9 +37,6 @@ class TicTac:
         self.init_xo = True  # 1 - X, 0 - 0 кто первый
 
         self.flag_xo = self.init_xo  # True - X, False - 0 кто первый
-
-        #self.moves_made = [self.init_xo]  # Создаем список со сделанными ходами. Первый элемент - выбор Х или О
-
         self.root = tk.Tk()
         self.root.title("Крестики-Нолики")
         self.root.resizable(width=False, height=False)
@@ -128,68 +125,64 @@ class TicTac:
 
         :return:
         """
-
-        # self.label_player1_count['text'] = 0
-        # self.label_player2_count['text'] = 0
-        #self.label_draw_count['text'] = 0
         for _ in self.element:
             _.destroy()
         self.element = []
-        #self.moves_made = [1]
         self.flag_xo = self.init_xo
         self.label_end['text'] = ''
         self.label_end_win['text'] = ''
         self.win_xod = [0, 0, 0]
         self.game_field = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-    def _koza(self, actions):
-        koza = self.game_field.copy()
-        # print(koza)
-        # koza = [-x for x in koza]
-        # print(koza, actions)
-        if koza[actions - 1]:
+    def _perebil_hod(self, actions):
+        hod = self.game_field.copy()
+        if hod[actions - 1]:
             return False
-        koza[actions - 1] = 1
-        # print(koza)
+        hod[actions - 1] = 1
         _win = 0
         for el_win in self.win:
-            # if ([el_win[0], elem] in self.moves_made) and ([el_win[1], elem] in self.moves_made) and ([el_win[2], elem] in self.moves_made):
             for _ in el_win:
-                _win += koza[_ - 1]
+                _win += hod[_ - 1]
             if _win == 3:
-                # print('WIN')
                 return True
             _win = 0
-        # if len(self.moves_made) == 10:
-        # if all(self.game_field):
-        #     self.win_xod = [0, 0, 1]
-        #     return True
-        # return False
 
     def _reward(self, actions):
+        """
+        Функция вознаграждения
+        :param actions:
+        :return:
+        """
         if self._koza(actions) and not self.win_xod[1]:
-            return False, +1
+            return False, +1  # Если перебил ход
         if self.game_field[actions-1]:
             self.osh += 1
-            return True, -10
+            return True, -10  # Если неправильный ход
         self.fun_moves_made(actions)
         if any(self.win_xod):
             if self.win_xod[0]:
-                return True, -1
+                return True, -1  # Если проиграл
             if self.win_xod[1]:
-                return True, 1
+                return True, 1   # ЕСли победил
             if self.win_xod[2]:
-                return True, 1
+                return True, 1  # Если ничья
 
-        return False, 0.5
+        return False, 0.5  # Если простой ход
 
     def _random(self):
+        """
+        Функция рандомного хода
+        :return:
+        """
         pos = self.random_hod()
         self.fun_moves_made(pos)
         return self.game_field
 
     def education(self):
-
+        """
+        Функция обучения
+        :return:
+        """
         for e in range(agent.n_episodes):
             print(self.osh)
             self.new_game()
@@ -199,18 +192,12 @@ class TicTac:
             done = False
             time = 0
             while not done:
-                #print('r', state)
                 if np.random.rand() <= agent.epsilon:
                     actions = self.random_hod()
                     done, reward = self._reward(actions)
-                    # print(state)
-                    # print(agent.model.predict(state))
-                    # print(agent.act(state))
-                    # print('q')
                 else:
                     actions = agent.act(state)
                     done, reward = self._reward(actions)
-                #print(actions)
                 hod_ai = self.game_field
                 hod_ai = np.reshape(hod_ai, [1, agent.state_size])
                 if not done:
@@ -225,27 +212,20 @@ class TicTac:
                 else:
                     next_state = state
 
-                #print(state, actions, reward, next_state, done)
-                #print(len(agent.memory))
                 agent.remember(state, actions, reward, hod_ai, done)
-                #print(agent.memory)
                 state = next_state
                 time += 1
                 if done:
                     print(agent.obuch)
                     print("episode: {}/{}, score: {}, e: {:.2}".format(e, agent.n_episodes - 1, time, agent.epsilon))
-                #time += 1
             #  Если длина списка, представляющего память агента, превысила размер пакета, вызывается метод train()
-            if e == 500:
-                print('pora')
-            #if len(agent.memory) > agent.batch_size:
-                # agent.train(agent.batch_size)
+
+            if len(agent.memory) > agent.batch_size:
+                agent.train(agent.batch_size)
                 '''
                 Через каждые 50 эпизодов вызывается метод save() агента, чтобы сохранить параметры модели нейронной сети
                 '''
             if e % 50 == 0:
-                if e>0:
-                    agent.train(agent.batch_size)
                 agent.save(agent.output_dir + "weights_" + '{:04d}'.format(e) + ".hdf5")
 
     def canva_create(self):
@@ -253,7 +233,6 @@ class TicTac:
         Функция создает канву для последующего размещения на ней игровго элемента
         :return:
         """
-        #   self.image_X = self.canvas_X.create_image(0, 0, anchor='nw', image=self.photo_X)
         return tkinter.Canvas(self.root, height=70, width=70, highlightthickness=0)
 
     def canva_add_x(self, canva):
@@ -354,39 +333,19 @@ class TicTac:
         :param pos: 1,2,3,4,5,6,7,8,9
         :return:
         """
-        # global moves_made
-
-        # moves_made = [x for x, _ in self.moves_made[1:]]
-        #if pos not in moves_made:
         if not self.game_field[pos-1]:
-            #if self.moves_made[0] == 1:
             if self.flag_xo:
                 self.hod('X', pos)
-                #self.moves_made.append([pos, 'X'])
                 self.game_field[pos-1] = 1
-                #self.moves_made[0] = 0
                 self.flag_xo = False
             else:
                 self.hod('O', pos)
-                #self.moves_made.append([pos, 'O'])
                 self.game_field[pos-1] = -1
-                #self.moves_made[0] = 1
                 self.flag_xo = True
             self.root.update()
-            # Проверка после совершенного хода на победу или ничью
-        # if self.search_win_game('O') and not self.win_xod[2]:
-        #     self.end_game('O')
-        #     return True
-        # if self.search_win_game('X') and not self.win_xod[2]:
-        #     self.end_game('X')
-        #     return True
         if self.search_end_game():
             self.end_game()
-        # if self.win_xod[2]:
-        #     self.end_game('=')
-            #return True
 
-    #def search_win_game(self, elem)
     def search_end_game(self):
         """
         Функция определяющая победу
@@ -394,19 +353,15 @@ class TicTac:
         """
         _win = 0
         for el_win in self.win:
-            #if ([el_win[0], elem] in self.moves_made) and ([el_win[1], elem] in self.moves_made) and ([el_win[2], elem] in self.moves_made):
             for _ in el_win:
                 _win += self.game_field[_-1]
             if _win**2 == 9:
-                #if elem == 'X':
                 if _win > 0:
                     self.win_xod = [1, 0, 0]
-                #if elem == 'O':
                 if _win < 0:
                     self.win_xod = [0, 1, 0]
                 return True
             _win = 0
-        #if len(self.moves_made) == 10:
         if all(self.game_field):
             self.win_xod = [0, 0, 1]
             return True
