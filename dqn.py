@@ -25,14 +25,15 @@ class DQNAgent:
         self.output_dir = 'model_output/'
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
-        self.n_episodes = 500
+        self.n_episodes = 5000
         self.batch_size =64
+        self.obuch = 0
 
         self.state_size = 9
         self.action_size = 9
-        self.memory = deque(maxlen=100)  # Двусторонняя очередь для хранения воспоминаний
+        self.memory = deque(maxlen=50)  # Двусторонняя очередь для хранения воспоминаний
         self.gamma = 0.95  # Скорость затухания
-        self.epsilon = 1.0  # Доля исследовательских действий (100%)
+        self.epsilon = 0.01  # Доля исследовательских действий (100%)
         self.epsilon_decay = 0.995  # Коэффициент уменьшения e
         self.epsilon_min = 0.01  # Минимальное значение, до которого может уменьшиться доля исследовательских действий
         self.learning_rate = 0.001  # скорость стохастического градиентного спуска
@@ -40,9 +41,10 @@ class DQNAgent:
 
     def _build_model(self):  # +
         model = Sequential()
-        model.add(Dense(64, activation='relu', input_dim=self.state_size))
-        model.add(Dense(64, activation='relu'))
-        model.add(Dense(64, activation='relu'))
+        model.add(Dense(32, activation='relu', input_dim=self.state_size))
+        model.add(Dense(32, activation='relu'))
+        #model.add(Dense(256, activation='relu'))
+        #model.add(Dense(128, activation='relu'))
         #model.add(Dense(64, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
@@ -62,8 +64,9 @@ class DQNAgent:
         self.memory.append((state, action, reward, next_state, done))
 
     def train(self, batch_size):  # +-
-        minibatch = random.sample(self.memory, batch_size)   # случайного отбора данных batch_size
-        for state, action, reward, next_state, done in minibatch:
+        #minibatch = random.sample(self.memory, batch_size)   # случайного отбора данных batch_size
+        #for state, action, reward, next_state, done in minibatch:
+        for state, action, reward, next_state, done in self.memory:
             target = reward  # если достигнут конец
             if not done:
             #print(next_state)
@@ -74,7 +77,14 @@ class DQNAgent:
             #print(target_f)
             target_f[0][action-1] = target
             #print(state, next_state, '|',action,'|',target,'|',done,'|',np.argmax(target_f[0])+1,'\n',target_f)
-            self.model.fit(state, target_f, epochs=1, verbose=0)
+            flag = True
+            while flag:
+                self.model.fit(state, target_f, epochs=1, verbose=0)
+                flag = False
+                test = self.model.predict(state)
+                if state[0][action-1] and np.argmax(test[0])+1 == action:
+                    flag = True
+                self.obuch+=1
             #print(state, target_f)
             #self.model.fit(state, target, epochs=1, verbose=0)
         if self.epsilon > self.epsilon_min:

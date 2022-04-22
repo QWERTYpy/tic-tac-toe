@@ -29,7 +29,7 @@ class TicTac:
                     [1, 4, 7],
                     [2, 5, 8],
                     [3, 6, 9]]
-
+        self.osh = 0
         self.win_xod = [0, 0, 0]  # Победа Х,О,Н
         self.game_field = [0, 0, 0, 0, 0, 0, 0, 0, 0]  # 0- Пусто, 1-Х, -1-О
         # Информация из интрефейса управлния (пока отсутсвуют)
@@ -142,7 +142,33 @@ class TicTac:
         self.win_xod = [0, 0, 0]
         self.game_field = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 
+    def _koza(self, actions):
+        koza = self.game_field.copy()
+        # print(koza)
+        # koza = [-x for x in koza]
+        # print(koza, actions)
+        if koza[actions - 1]:
+            return False
+        koza[actions - 1] = 1
+        # print(koza)
+        _win = 0
+        for el_win in self.win:
+            # if ([el_win[0], elem] in self.moves_made) and ([el_win[1], elem] in self.moves_made) and ([el_win[2], elem] in self.moves_made):
+            for _ in el_win:
+                _win += koza[_ - 1]
+            if _win == 3:
+                # print('WIN')
+                return True
+            _win = 0
+        # if len(self.moves_made) == 10:
+        # if all(self.game_field):
+        #     self.win_xod = [0, 0, 1]
+        #     return True
+        # return False
+
     def _reward(self, actions):
+        if self._koza(actions) and not self.win_xod[1]:
+            return False, +1
         if self.game_field[actions-1]:
             self.osh += 1
             return True, -10
@@ -163,7 +189,7 @@ class TicTac:
         return self.game_field
 
     def education(self):
-        self.osh=0
+
         for e in range(agent.n_episodes):
             print(self.osh)
             self.new_game()
@@ -192,7 +218,7 @@ class TicTac:
                     next_state = np.reshape(next_state, [1, agent.state_size])
                     if self.win_xod[0]:
                         done = True
-                        reward = -10
+                        reward = -1
                     if self.win_xod[2]:
                         done = True
                         reward = 1
@@ -206,15 +232,20 @@ class TicTac:
                 state = next_state
                 time += 1
                 if done:
+                    print(agent.obuch)
                     print("episode: {}/{}, score: {}, e: {:.2}".format(e, agent.n_episodes - 1, time, agent.epsilon))
                 #time += 1
             #  Если длина списка, представляющего память агента, превысила размер пакета, вызывается метод train()
-            if len(agent.memory) > agent.batch_size:
-                agent.train(agent.batch_size)
+            if e == 500:
+                print('pora')
+            #if len(agent.memory) > agent.batch_size:
+                # agent.train(agent.batch_size)
                 '''
                 Через каждые 50 эпизодов вызывается метод save() агента, чтобы сохранить параметры модели нейронной сети
                 '''
             if e % 50 == 0:
+                if e>0:
+                    agent.train(agent.batch_size)
                 agent.save(agent.output_dir + "weights_" + '{:04d}'.format(e) + ".hdf5")
 
     def canva_create(self):
