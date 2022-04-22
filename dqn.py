@@ -10,6 +10,7 @@ from tensorflow.python.keras.layers import Dense
 import tensorflow as tf
 import os
 
+
 tf.compat.v1.disable_eager_execution()
 
 # state_size = 9  # число типов информации о состоянии
