@@ -73,6 +73,7 @@ class DQNAgent:
             target_f = self.model.predict(state)
             #print(target_f)
             target_f[0][action-1] = target
+            #print(state, next_state, '|',action,'|',target,'|',done,'|',np.argmax(target_f[0])+1,'\n',target_f)
             self.model.fit(state, target_f, epochs=1, verbose=0)
             #print(state, target_f)
             #self.model.fit(state, target, epochs=1, verbose=0)

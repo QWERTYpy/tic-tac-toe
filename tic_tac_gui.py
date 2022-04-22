@@ -145,7 +145,7 @@ class TicTac:
     def _reward(self, actions):
         if self.game_field[actions-1]:
             self.osh += 1
-            return True, -1000
+            return True, -10
         self.fun_moves_made(actions)
         if any(self.win_xod):
             if self.win_xod[0]:
@@ -185,12 +185,14 @@ class TicTac:
                     actions = agent.act(state)
                     done, reward = self._reward(actions)
                 #print(actions)
+                hod_ai = self.game_field
+                hod_ai = np.reshape(hod_ai, [1, agent.state_size])
                 if not done:
                     next_state = self._random().copy()
                     next_state = np.reshape(next_state, [1, agent.state_size])
                     if self.win_xod[0]:
                         done = True
-                        reward = -100
+                        reward = -10
                     if self.win_xod[2]:
                         done = True
                         reward = 1
@@ -199,7 +201,7 @@ class TicTac:
 
                 #print(state, actions, reward, next_state, done)
                 #print(len(agent.memory))
-                agent.remember(state, actions, reward, next_state, done)
+                agent.remember(state, actions, reward, hod_ai, done)
                 #print(agent.memory)
                 state = next_state
                 time += 1
