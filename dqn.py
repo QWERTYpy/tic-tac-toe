@@ -1,4 +1,5 @@
 import numpy as np
+import random
 from collections import deque
 from tensorflow.python.keras.optimizer_v1 import Adam
 from tensorflow.python.keras.models import Sequential
@@ -14,14 +15,14 @@ class DQNAgent:
         self.output_dir = 'model_output/'
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
-        self.n_episodes = 1000
+        self.n_episodes = 500
         self.batch_size =64
 
         self.state_size = 9
         self.action_size = 9
         self.memory = deque(maxlen=100)  # Двусторонняя очередь для хранения воспоминаний
         self.gamma = 0.95  # Скорость затухания
-        self.epsilon = 0.01  # Доля исследовательских действий (100%)
+        self.epsilon = 1.0  # Доля исследовательских действий (100%)
         self.epsilon_decay = 0.995  # Коэффициент уменьшения e
         self.epsilon_min = 0.01  # Минимальное значение, до которого может уменьшиться доля исследовательских действий
         self.learning_rate = 0.001  # скорость стохастического градиентного спуска
@@ -49,7 +50,8 @@ class DQNAgent:
         self.memory.append((state, action, reward, next_state, done))
 
     def train(self, batch_size):  # +-
-        for state, action, reward, next_state, done in self.memory:
+        minibatch = random.sample(self.memory, batch_size)  # случайного отбора данных batch_size
+        for state, action, reward, next_state, done in minibatch:
             target = reward  # если достигнут конец
             if not done:
                 target = (reward + self.gamma * np.amax(self.model.predict(next_state)[0]))

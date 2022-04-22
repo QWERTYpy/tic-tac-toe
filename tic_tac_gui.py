@@ -153,7 +153,7 @@ class TicTac:
         :param actions:
         :return:
         """
-        if self._koza(actions) and not self.win_xod[1]:
+        if self._perebil_hod(actions) and not self.win_xod[1]:
             return False, +1  # Если перебил ход
         if self.game_field[actions-1]:
             self.osh += 1
