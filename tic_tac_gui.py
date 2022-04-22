@@ -216,7 +216,6 @@ class TicTac:
                 state = next_state
                 time += 1
                 if done:
-                    print(agent.obuch)
                     print("episode: {}/{}, score: {}, e: {:.2}".format(e, agent.n_episodes - 1, time, agent.epsilon))
             #  Если длина списка, представляющего память агента, превысила размер пакета, вызывается метод train()
 

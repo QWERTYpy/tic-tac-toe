@@ -14,13 +14,12 @@ class DQNAgent:
         self.output_dir = 'model_output/'
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
-        self.n_episodes = 5000
+        self.n_episodes = 1000
         self.batch_size =64
-        self.obuch = 0
 
         self.state_size = 9
         self.action_size = 9
-        self.memory = deque(maxlen=50)  # Двусторонняя очередь для хранения воспоминаний
+        self.memory = deque(maxlen=100)  # Двусторонняя очередь для хранения воспоминаний
         self.gamma = 0.95  # Скорость затухания
         self.epsilon = 0.01  # Доля исследовательских действий (100%)
         self.epsilon_decay = 0.995  # Коэффициент уменьшения e
