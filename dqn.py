@@ -15,7 +15,7 @@ class DQNAgent:
         self.output_dir = 'model_output/'
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
-        self.n_episodes = 500
+        self.n_episodes = 2000
         self.batch_size =64
 
         self.state_size = 9
@@ -31,6 +31,7 @@ class DQNAgent:
     def _build_model(self):  # +
         model = Sequential()
         model.add(Dense(32, activation='relu', input_dim=self.state_size))
+        model.add(Dense(64, activation='relu'))
         model.add(Dense(32, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
@@ -38,7 +39,6 @@ class DQNAgent:
 
     def remember(self, state, action, reward, next_state, done):  # +
         """
-
         :param state: Состояние st (state), встретившееся агенту
         :param action: Действие at (action), предпринятое агентом
         :param reward: Вознаграждение rt (reward), которое вернуло окружение в ответ на действие
