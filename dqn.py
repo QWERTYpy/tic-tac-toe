@@ -15,12 +15,12 @@ class DQNAgent:
         self.output_dir = 'model_output/'
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
-        self.n_episodes = 2000
+        self.n_episodes = 3000
         self.batch_size =64
 
         self.state_size = 9
         self.action_size = 9
-        self.memory = deque(maxlen=100)  # Двусторонняя очередь для хранения воспоминаний
+        self.memory = deque(maxlen=500)  # Двусторонняя очередь для хранения воспоминаний
         self.gamma = 0.95  # Скорость затухания
         self.epsilon = 1.0  # Доля исследовательских действий (100%)
         self.epsilon_decay = 0.995  # Коэффициент уменьшения e
@@ -30,9 +30,9 @@ class DQNAgent:
 
     def _build_model(self):  # +
         model = Sequential()
-        model.add(Dense(32, activation='relu', input_dim=self.state_size))
-        model.add(Dense(64, activation='relu'))
-        model.add(Dense(32, activation='relu'))
+        model.add(Dense(256, activation='relu', input_dim=self.state_size))
+        #model.add(Dense(256, activation='relu'))
+        #model.add(Dense(32, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
         return model

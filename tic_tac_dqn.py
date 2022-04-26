@@ -31,11 +31,11 @@ class TicTacDQN(ttg.TicTac):
             return True, -10  # Если неправильный ход
         if any(self.win_xod):
             if self.win_xod[0]:
-                return True, -1  # Если проиграл
+                return True, -5  # Если проиграл
             if self.win_xod[1]:
-                return True, 1  # ЕСли победил
+                return True, 5  # ЕСли победил
             if self.win_xod[2]:
-                return True, 1  # Если ничья
+                return True, 5  # Если ничья
 
         return False, 0.5  # Если простой ход
 
@@ -89,7 +89,7 @@ class TicTacDQN(ttg.TicTac):
                 '''
                 Через каждые 50 эпизодов вызывается метод save() агента, чтобы сохранить параметры модели нейронной сети
                 '''
-            if epis % 50 == 0:
+            if epis % 200 == 0:
                 agent.save(agent.output_dir + "weights_" + '{:04d}'.format(epis) + ".hdf5")
 
     def motion(self, event):
@@ -131,5 +131,5 @@ if game.init_type == 3 or game.init_type == 2:
 
 if game.init_type == 2:
     agent = dqn.DQNAgent()
-    agent.load(agent.output_dir + "weights_1950.hdf5")
+    agent.load(agent.output_dir + "weights_2800.hdf5")
 game.mainloop()
