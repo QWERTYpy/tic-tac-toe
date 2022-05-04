@@ -35,7 +35,7 @@ class TicTac:
         # Информация из интрефейса управлния (пока отсутсвуют)
         self.init_type = 2  # 1 -> человек - человек, 2 -> человек - компьютер, 3 -> рандом - компьютер, 4 -> рандом - ч
         self.init_xo = True  # 1 - X, 0 - 0 кто первый
-
+        self.action = ''
         self.flag_xo = self.init_xo  # True - X, False - 0 кто первый
         self.root = tk.Tk()
         self.root.title("Крестики-Нолики")
@@ -96,7 +96,6 @@ class TicTac:
         self.label_end_win.place(x=220, y=40)
         self.label_end_win.configure(background='#ffffff')
 
-
     def player1_count(self):
         """
         Функция увеличивает количество побед игрока 1
@@ -133,11 +132,6 @@ class TicTac:
         self.label_end_win['text'] = ''
         self.win_xod = [0, 0, 0]
         self.game_field = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-
-
-
-
-
 
     def canva_create(self):
         """
@@ -194,8 +188,6 @@ class TicTac:
         else:
             self.canva_add_o(self.element[ind])
         self.print_canva(self.element[ind], pos_x, pos_y)  # Размещаем элемент на канве
-
-
 
     def _random(self):
         """

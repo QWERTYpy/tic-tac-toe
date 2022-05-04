@@ -37,37 +37,30 @@ class DQNAgent:
         model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
         return model
 
-    def remember(self, state, action, reward, next_state, done):  # +
-        """
-        :param state: Состояние st (state), встретившееся агенту
-        :param action: Действие at (action), предпринятое агентом
-        :param reward: Вознаграждение rt (reward), которое вернуло окружение в ответ на действие
-        :param next_state: Следующее состояние st+1 (next_state), которое вернуло окружение
-        :param done: Логический флаг done, который получает значение True, если достигнут последний временной шаг
-                в эпизоде, и False в ином случае.
-        :return:
-        """
-        self.memory.append((state, action, reward, next_state, done))
-
-    def train(self, batch_size):  # +-
-        minibatch = random.sample(self.memory, batch_size)  # случайного отбора данных batch_size
-        for state, action, reward, next_state, done in minibatch:
+    def train(self, name):
+        f = open(name)
+        for line in f:
+            state, action, reward, next_state, done, _ = line.split(',')
+            state = state.strip()
+            state = state[2:-2]
+            state = state.split()
+            state = [int(x) for x in state]
+            state = np.reshape(state, [1, agent.state_size])
+            next_state = next_state.strip()
+            next_state = next_state[2:-2]
+            next_state = next_state.split()
+            next_state = [int(x) for x in next_state]
+            next_state = np.reshape(next_state, [1, agent.state_size])
+            action = int(action.strip())
+            reward = float(reward.strip())
+            done = done.strip()
             target = reward  # если достигнут конец
             if not done:
                 target = (reward + self.gamma * np.amax(self.model.predict(next_state)[0]))
             target_f = self.model.predict(state)
             target_f[0][action-1] = target
             self.model.fit(state, target_f, epochs=1, verbose=0)
-        if self.epsilon > self.epsilon_min:
-            self.epsilon *= self.epsilon_decay
-
-    def train_manual(self, state, action, reward, next_state, done):  # +-
-        target = reward  # если достигнут конец
-        if not done:
-            target = (reward + self.gamma * np.amax(self.model.predict(next_state)[0]))
-        target_f = self.model.predict(state)
-        target_f[0][action-1] = target
-        self.model.fit(state, target_f, epochs=1, verbose=1)
+        f.close()
 
     def act(self, state):  # +
         act_values = self.model.predict(state)
@@ -79,3 +72,8 @@ class DQNAgent:
     def load(self, name):
         self.model.load_weights(name)
 
+
+agent = DQNAgent()
+for _ in range(100):
+    agent.train('txt.txt')
+agent.save(agent.output_dir + "manual.hdf5")
