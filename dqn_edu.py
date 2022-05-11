@@ -75,5 +75,6 @@ class DQNAgent:
 
 agent = DQNAgent()
 for _ in range(100):
-    agent.train('txt.txt')
+    print(_)
+    agent.train('txt_XO.txt')
 agent.save(agent.output_dir + "manual.hdf5")

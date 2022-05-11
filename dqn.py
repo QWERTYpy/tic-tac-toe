@@ -15,7 +15,7 @@ class DQNAgent:
         self.output_dir = 'model_output/'
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
-        self.n_episodes = 3000
+        self.n_episodes = 4000
         self.batch_size =64
 
         self.state_size = 9

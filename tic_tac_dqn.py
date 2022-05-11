@@ -2,7 +2,7 @@ import tic_tac_gui as ttg
 import dqn
 import numpy as np
 import random
-f = open('text.txt', 'w')
+f = open('text_XO.txt', 'w')
 
 class TicTacDQN(ttg.TicTac):
     def _perebil_hod(self, actions):
