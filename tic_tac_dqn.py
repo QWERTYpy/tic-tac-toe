@@ -171,7 +171,7 @@ class TicTacDQN(ttg.TicTac):
                 print(state, actions, reward, hod_ai, done)
                 agent.train_manual(state, actions, reward, hod_ai, done)
                 agent.save(agent.output_dir+'test.hdf5')
-                #print(actions)
+
                 #self.fun_moves_made(actions)
 
 game = TicTacDQN()
