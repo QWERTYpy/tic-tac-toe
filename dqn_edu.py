@@ -30,15 +30,17 @@ class DQNAgent:
 
     def _build_model(self):  # +
         model = Sequential()
-        model.add(Dense(256, activation='relu', input_dim=self.state_size))
-        #model.add(Dense(256, activation='relu'))
-        #model.add(Dense(32, activation='relu'))
+        model.add(Dense(128, activation='relu', input_dim=self.state_size))
+        model.add(Dense(256, activation='relu'))
+        model.add(Dense(32, activation='relu'))
         model.add(Dense(self.action_size, activation='linear'))
         model.compile(loss='mse', optimizer=Adam(lr=self.learning_rate))
         return model
 
     def train(self, name):
         f = open(name)
+        state_mas = np.empty((0,9), int)
+        target_mas = np.empty((0,9), int)
         for line in f:
             state, action, reward, next_state, done, _ = line.split(',')
             state = state.strip()
@@ -59,7 +61,12 @@ class DQNAgent:
                 target = (reward + self.gamma * np.amax(self.model.predict(next_state)[0]))
             target_f = self.model.predict(state)
             target_f[0][action-1] = target
-            self.model.fit(state, target_f, epochs=1, verbose=0)
+            state_mas = np.append(state_mas, state, axis=0)
+            target_mas = np.append(target_mas,target_f, axis=0)
+            # state_mas.append(state)
+            # target_mas.append(target_f)
+        tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir="./logs")
+        self.model.fit(state_mas, target_mas, batch_size=200, epochs=1000, verbose=1, callbacks=[tensorboard_callback] )
         f.close()
 
     def act(self, state):  # +
@@ -74,7 +81,8 @@ class DQNAgent:
 
 
 agent = DQNAgent()
-for _ in range(100):
-    print(_)
-    agent.train('txt_XO.txt')
-agent.save(agent.output_dir + "manual.hdf5")
+# for _ in range(100):
+#     print(_)
+#     agent.train('txt_XO.txt')
+agent.train('txt_XO_m.txt')
+agent.save(agent.output_dir + "manual_test4.hdf5")

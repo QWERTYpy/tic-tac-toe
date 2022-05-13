@@ -180,5 +180,5 @@ if game.init_type == 3 or game.init_type == 2:
 
 if game.init_type == 2:
     agent = dqn.DQNAgent()
-    agent.load(agent.output_dir + "manual.hdf5")
+    agent.load(agent.output_dir + "manual_test4.hdf5")
 game.mainloop()
